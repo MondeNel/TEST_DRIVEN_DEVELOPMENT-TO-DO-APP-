@@ -3,8 +3,9 @@ from unittest.mock import AsyncMock, patch
 from bson import ObjectId
 from app.crud import create_todo, get_all_todos, get_todo, update_todo, delete_todo
 
+# Helper class to mock asynchronous iteration over database query results
 class AsyncIteratorMock:
-    """Helper class to mock async iterators"""
+    """Helper class to mock async iterators (e.g. cursor returned by find())"""
     def __init__(self, items):
         self.items = iter(items)
 
@@ -17,6 +18,9 @@ class AsyncIteratorMock:
         except StopIteration:
             raise StopAsyncIteration
 
+# -------------------------
+# Test: Create a new todo
+# -------------------------
 @pytest.mark.asyncio
 async def test_create_todo():
     test_data = {"task": "Write tests"}
@@ -24,6 +28,7 @@ async def test_create_todo():
     inserted_todo = {"_id": fake_id, "task": "Write tests"}
     expected_result = {"id": str(fake_id), "task": "Write tests"}
 
+    # Mock database insert, find, and helper conversion
     with patch("app.crud.todo_collection.insert_one", new_callable=AsyncMock) as mock_insert, \
          patch("app.crud.todo_collection.find_one", new_callable=AsyncMock) as mock_find, \
          patch("app.crud.todo_helper", return_value=expected_result) as mock_helper:
@@ -31,26 +36,30 @@ async def test_create_todo():
         mock_insert.return_value.inserted_id = fake_id
         mock_find.return_value = inserted_todo
 
+        # Call the function
         result = await create_todo(test_data)
 
+        # Assert calls and result
         mock_insert.assert_awaited_once_with(test_data)
         mock_find.assert_awaited_once_with({"_id": fake_id})
         mock_helper.assert_called_once_with(inserted_todo)
-
         assert result == expected_result
 
+# -----------------------------------
+# Test: Get all todos from database
+# -----------------------------------
 @pytest.mark.asyncio
 async def test_get_all_todos():
     mock_todos = [
         {"_id": 1, "task": "Test Task 1"},
         {"_id": 2, "task": "Test Task 2"},
     ]
-
     expected_result = [
         {"id": "1", "task": "Test Task 1"},
         {"id": "2", "task": "Test Task 2"},
     ]
 
+    # Mock .find() to return an async iterator
     with patch("app.crud.todo_collection.find", return_value=AsyncIteratorMock(mock_todos)) as mock_find, \
          patch("app.crud.todo_helper") as mock_helper:
 
@@ -63,6 +72,9 @@ async def test_get_all_todos():
         mock_helper.assert_any_call(mock_todos[1])
         assert result == expected_result
 
+# ---------------------------------------
+# Test: Get one todo by ID (found case)
+# ---------------------------------------
 @pytest.mark.asyncio
 async def test_get_todo_found():
     mock_id = ObjectId()
@@ -81,6 +93,9 @@ async def test_get_todo_found():
         mock_helper.assert_called_once_with(mock_todo)
         assert result == expected_result
 
+# ------------------------------------------
+# Test: Get one todo by ID (not found case)
+# ------------------------------------------
 @pytest.mark.asyncio
 async def test_get_todo_not_found():
     mock_id = ObjectId()
@@ -93,14 +108,18 @@ async def test_get_todo_not_found():
         mock_find.assert_awaited_once_with({"_id": mock_id})
         assert result is None
 
-
-
+# ------------------------------------------
+# Test: Update todo - should fail on empty data
+# ------------------------------------------
 @pytest.mark.asyncio
 async def test_update_todo_empty_data():
     fake_id = str(ObjectId())
     result = await update_todo(fake_id, {})
     assert result is False
 
+# ------------------------------------------
+# Test: Successfully update a todo
+# ------------------------------------------
 @pytest.mark.asyncio
 async def test_update_todo_success():
     fake_id = ObjectId()
@@ -121,6 +140,9 @@ async def test_update_todo_success():
         mock_update_one.assert_awaited_once_with({"_id": fake_id}, {"$set": update_data})
         assert result is True
 
+# ----------------------------------------------------
+# Test: Update todo - should fail if todo not found
+# ----------------------------------------------------
 @pytest.mark.asyncio
 async def test_update_todo_not_found():
     fake_id = ObjectId()
@@ -134,7 +156,9 @@ async def test_update_todo_not_found():
         mock_find_one.assert_awaited_once_with({"_id": fake_id})
         assert result is False
 
-
+# ----------------------------------------
+# Test: Successfully delete an existing todo
+# ----------------------------------------
 @pytest.mark.asyncio
 async def test_delete_todo_success():
     fake_id = ObjectId()
@@ -151,7 +175,9 @@ async def test_delete_todo_success():
         mock_delete_one.assert_awaited_once_with({"_id": fake_id})
         assert result is True
 
-
+# ---------------------------------------
+# Test: Fail to delete a todo (not found)
+# ---------------------------------------
 @pytest.mark.asyncio
 async def test_delete_todo_not_found():
     fake_id = ObjectId()
