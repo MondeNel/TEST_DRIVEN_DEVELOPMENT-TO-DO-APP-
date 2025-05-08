@@ -1,19 +1,16 @@
-# Main entry point for the FastAPI application
 from fastapi import FastAPI
-from app.routes import router
-from app.database import create_db_and_collections
+from .routes import router
+from fastapi.middleware.cors import CORSMiddleware
 
-# Create the FastAPI application instance with a title
-app = FastAPI(title="Todo API")
+app = FastAPI()
 
-# Include the route handlers from app/routes.py
+# Enable CORS for frontend to connect
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, set the frontend domain
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(router)
-
-# Hook to run on application startup
-@app.on_event("startup")
-async def startup_event():
-    """
-    Function that runs once when the application starts.
-    It ensures the necessary MongoDB database and collections are created.
-    """
-    await create_db_and_collections()

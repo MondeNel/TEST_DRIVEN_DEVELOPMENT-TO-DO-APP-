@@ -1,53 +1,34 @@
-# Defines API routes and integrates CRUD functions with FastAPI endpoints
-
 from fastapi import APIRouter, HTTPException
-from app.schemas import TodoSchema, UpdateTodoSchema
-from app.crud import add_todo, get_all_todos, get_todo_by_id, update_todo, delete_todo
+from .schemas import TodoCreate, TodoInDB
+from . import crud
 
-# Create a new APIRouter instance for grouping routes
 router = APIRouter()
 
-@router.post("/todos")
-async def create(todo: TodoSchema):
-    """
-    Create a new todo item.
-    """
-    return await add_todo(todo.dict())
+@router.post("/todos", response_model=TodoInDB)
+async def create_todo(todo: TodoCreate):
+    return await crud.create_todo(todo.dict())
 
-@router.get("/todos")
-async def read_all():
-    """
-    Retrieve all todo items.
-    """
-    return await get_all_todos()
+@router.get("/todos", response_model=list[TodoInDB])
+async def read_todos():
+    return await crud.get_all_todos()
 
-@router.get("/todos/{id}")
-async def read_one(id: str):
-    """
-    Retrieve a specific todo item by ID.
-    """
-    todo = await get_todo_by_id(id)
-    if not todo:
-        raise HTTPException(status_code=404, detail="Todo not found")
-    return todo
+@router.get("/todos/{todo_id}", response_model=TodoInDB)
+async def read_todo(todo_id: str):
+    todo = await crud.get_todo(todo_id)
+    if todo:
+        return todo
+    raise HTTPException(status_code=404, detail="Todo not found")
 
-@router.patch("/todos/{id}")
-async def update(id: str, todo: UpdateTodoSchema):
-    """
-    Update a todo item partially by ID.
-    Only fields provided will be updated.
-    """
-    updated = await update_todo(id, todo.dict(exclude_unset=True))
-    if not updated:
-        raise HTTPException(status_code=404, detail="Todo not found")
-    return {"message": "Todo updated successfully"}
+@router.put("/todos/{todo_id}")
+async def update_todo(todo_id: str, todo: TodoCreate):
+    success = await crud.update_todo(todo_id, todo.dict())
+    if success:
+        return {"msg": "Todo updated"}
+    raise HTTPException(status_code=404, detail="Todo not found")
 
-@router.delete("/todos/{id}")
-async def delete(id: str):
-    """
-    Delete a todo item by ID.
-    """
-    deleted = await delete_todo(id)
-    if not deleted:
-        raise HTTPException(status_code=404, detail="Todo not found")
-    return {"message": "Todo deleted successfully"}
+@router.delete("/todos/{todo_id}")
+async def delete_todo(todo_id: str):
+    success = await crud.delete_todo(todo_id)
+    if success:
+        return {"msg": "Todo deleted"}
+    raise HTTPException(status_code=404, detail="Todo not found")
