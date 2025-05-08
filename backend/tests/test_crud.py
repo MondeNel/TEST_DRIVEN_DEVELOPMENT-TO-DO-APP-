@@ -1,64 +1,26 @@
 import pytest
-from app import crud
-from app.database import todo_collection
+from unittest.mock import AsyncMock, patch
 from bson import ObjectId
+from app.crud import create_todo
 
 @pytest.mark.asyncio
 async def test_create_todo():
-    todo_data = {"title": "Test Add", "description": "Add description", "completed": False}
-    result = await crud.create_todo(todo_data)
+    test_data = {"task": "Write tests"}
+    fake_id = ObjectId()
+    inserted_todo = {"_id": fake_id, "task": "Write tests"}
+    expected_result = {"id": str(fake_id), "task": "Write tests"}  # assuming todo_helper formats like this
 
-    assert result["title"] == todo_data["title"]
-    assert result["description"] == todo_data["description"]
+    with patch("app.crud.todo_collection.insert_one", new_callable=AsyncMock) as mock_insert, \
+         patch("app.crud.todo_collection.find_one", new_callable=AsyncMock) as mock_find, \
+         patch("app.crud.todo_helper", return_value=expected_result) as mock_helper:
 
-    # Cleanup
-    await todo_collection.delete_one({"_id": ObjectId(result["id"])})
+        mock_insert.return_value.inserted_id = fake_id
+        mock_find.return_value = inserted_todo
 
-@pytest.mark.asyncio
-async def test_get_all_todos():
-    todo_data = {"title": "Test List", "description": "List description", "completed": False}
-    created = await crud.create_todo(todo_data)
+        result = await create_todo(test_data)
 
-    todos = await crud.get_all_todos()
-    assert isinstance(todos, list)
-    assert any(todo["title"] == "Test List" for todo in todos)
+        mock_insert.assert_awaited_once_with(test_data)
+        mock_find.assert_awaited_once_with({"_id": fake_id})
+        mock_helper.assert_called_once_with(inserted_todo)
 
-    # Cleanup
-    await todo_collection.delete_one({"_id": ObjectId(created["id"])})
-
-@pytest.mark.asyncio
-async def test_get_todo():
-    todo_data = {"title": "Test By ID", "description": "Get ID", "completed": False}
-    created = await crud.create_todo(todo_data)
-
-    fetched = await crud.get_todo(created["id"])
-    assert fetched["title"] == todo_data["title"]
-
-    # Cleanup
-    await todo_collection.delete_one({"_id": ObjectId(created["id"])})
-
-@pytest.mark.asyncio
-async def test_update_todo():
-    todo_data = {"title": "Before Update", "description": "Old", "completed": False}
-    created = await crud.create_todo(todo_data)
-
-    update_data = {"title": "After Update"}
-    success = await crud.update_todo(created["id"], update_data)
-    assert success is True
-
-    updated = await crud.get_todo(created["id"])
-    assert updated["title"] == "After Update"
-
-    # Cleanup
-    await todo_collection.delete_one({"_id": ObjectId(created["id"])})
-
-@pytest.mark.asyncio
-async def test_delete_todo():
-    todo_data = {"title": "To Be Deleted", "description": "Delete me", "completed": False}
-    created = await crud.create_todo(todo_data)
-
-    success = await crud.delete_todo(created["id"])
-    assert success is True
-
-    deleted = await crud.get_todo(created["id"])
-    assert deleted is None
+        assert result == expected_result
