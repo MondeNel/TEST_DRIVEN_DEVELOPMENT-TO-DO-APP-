@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import AsyncMock, patch
 from bson import ObjectId
-from app.crud import create_todo, get_all_todos, get_todo, update_todo
+from app.crud import create_todo, get_all_todos, get_todo, update_todo, delete_todo
 
 class AsyncIteratorMock:
     """Helper class to mock async iterators"""
@@ -93,6 +93,8 @@ async def test_get_todo_not_found():
         mock_find.assert_awaited_once_with({"_id": mock_id})
         assert result is None
 
+
+
 @pytest.mark.asyncio
 async def test_update_todo_empty_data():
     fake_id = str(ObjectId())
@@ -128,6 +130,36 @@ async def test_update_todo_not_found():
         mock_find_one.return_value = None
 
         result = await update_todo(str(fake_id), update_data)
+
+        mock_find_one.assert_awaited_once_with({"_id": fake_id})
+        assert result is False
+
+
+@pytest.mark.asyncio
+async def test_delete_todo_success():
+    fake_id = ObjectId()
+
+    with patch("app.crud.todo_collection.find_one", new_callable=AsyncMock) as mock_find_one, \
+         patch("app.crud.todo_collection.delete_one", new_callable=AsyncMock) as mock_delete_one:
+
+        mock_find_one.return_value = {"_id": fake_id, "task": "Delete Me"}
+        mock_delete_one.return_value = AsyncMock()
+
+        result = await delete_todo(str(fake_id))
+
+        mock_find_one.assert_awaited_once_with({"_id": fake_id})
+        mock_delete_one.assert_awaited_once_with({"_id": fake_id})
+        assert result is True
+
+
+@pytest.mark.asyncio
+async def test_delete_todo_not_found():
+    fake_id = ObjectId()
+
+    with patch("app.crud.todo_collection.find_one", new_callable=AsyncMock) as mock_find_one:
+        mock_find_one.return_value = None
+
+        result = await delete_todo(str(fake_id))
 
         mock_find_one.assert_awaited_once_with({"_id": fake_id})
         assert result is False
