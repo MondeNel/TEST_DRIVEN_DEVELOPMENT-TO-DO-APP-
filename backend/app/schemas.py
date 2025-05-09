@@ -1,7 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional
-from bson import ObjectId
-
 
 class TodoBase(BaseModel):
     title: str
@@ -14,5 +12,4 @@ class TodoCreate(TodoBase):
 class TodoInDB(TodoBase):
     id: str
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

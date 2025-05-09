@@ -1,10 +1,7 @@
-# MongoDB doesn't require models like relational DBs, but you can use utility functions
-from bson import ObjectId
-
 def todo_helper(todo) -> dict:
     return {
-        "id": str(todo["_id"]),
+        "id": str(todo["_id"]),  # Convert ObjectId to string
         "title": todo["title"],
-        "description": todo.get("description", ""),
+        "description": todo["description"],
         "completed": todo["completed"]
     }
