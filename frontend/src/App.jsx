@@ -2,18 +2,18 @@ import React, { useState } from 'react'
 import TodoForm from './components/TodoForm'
 import TodoItem from './components/TodoItem'
 
+
 /**
- * Root App component
+ * Main application component for managing todos.
+ *
+ * @component
  */
 function App() {
-  const [todos, setTodos] = useState([
-    {
-      id: '1',
-      title: 'Learn React',
-      description: 'Practice components and state',
-      completed: false
-    }
-  ])
+  const [todos, setTodos] = useState([])
+
+  const handleAddTodo = (todo) => {
+    setTodos(prev => [...prev, todo])
+  }
 
   const handleToggle = (id) => {
     setTodos(prev =>
@@ -30,7 +30,7 @@ function App() {
   return (
     <div className="app">
       <h1>Todo App</h1>
-      <TodoForm />
+      <TodoForm onAddTodo={handleAddTodo} />
       {todos.map(todo => (
         <TodoItem
           key={todo.id}

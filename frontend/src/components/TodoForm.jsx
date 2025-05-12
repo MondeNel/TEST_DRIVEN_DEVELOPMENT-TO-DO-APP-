@@ -1,19 +1,26 @@
 import React, { useState } from 'react'
 import '../styles/todoform.css'
 
-const TodoForm = () => {
+/**
+ * Form component for creating a new todo item.
+ *
+ * @component
+ * @param {Function} onAddTodo - Function to handle adding a new todo.
+ * @returns {JSX.Element}
+ */
+const TodoForm = ({ onAddTodo }) => {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
 
   const handleSubmit = (e) => {
     e.preventDefault()
     const newTodo = {
+      id: crypto.randomUUID(), // Unique ID for new todo
       title,
       description,
       completed: false,
     }
-    console.log('New Todo:', newTodo)
-    // Clear form
+    onAddTodo(newTodo)
     setTitle('')
     setDescription('')
   }
