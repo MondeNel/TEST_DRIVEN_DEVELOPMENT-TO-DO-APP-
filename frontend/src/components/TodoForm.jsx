@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import './todoform.css'
+import '../styles/todoform.css'
 
 const TodoForm = () => {
   const [title, setTitle] = useState('')
