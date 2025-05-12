@@ -1,19 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
+import UpdateModal from './UpdateModal'
 import '../styles/todoitem.css'
 
-/**
- * Component to display a single Todo item.
- * 
- * @param {Object} props
- * @param {string} props.id - Todo item ID
- * @param {string} props.title - Title of the todo
- * @param {string} props.description - Description of the todo
- * @param {boolean} props.completed - Completion status
- * @param {Function} props.onToggle - Toggle completion handler
- * @param {Function} props.onDelete - Delete handler
- * @param {Function} props.onUpdate - Update handler
- */
 const TodoItem = ({ id, title, description, completed, onToggle, onDelete, onUpdate }) => {
+  const [isEditing, setIsEditing] = useState(false)
+
   return (
     <div className={`todo-item ${completed ? 'completed' : ''}`}>
       <div className="todo-text">
@@ -29,9 +20,20 @@ const TodoItem = ({ id, title, description, completed, onToggle, onDelete, onUpd
           />
           Completed
         </label>
-        <button className="update-btn" onClick={() => onUpdate(id)}>Update</button>
-        <button className="delete-btn" onClick={() => onDelete(id)}>Delete</button>
+        <button onClick={() => onDelete(id)}>Delete</button>
+        <button onClick={() => setIsEditing(true)}>Update</button>
       </div>
+
+      {isEditing && (
+        <UpdateModal
+          title={title}
+          description={description}
+          onClose={() => setIsEditing(false)}
+          onSave={(updatedTitle, updatedDesc) =>
+            onUpdate(id, updatedTitle, updatedDesc)
+          }
+        />
+      )}
     </div>
   )
 }

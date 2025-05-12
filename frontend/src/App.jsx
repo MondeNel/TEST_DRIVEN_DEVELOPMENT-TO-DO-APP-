@@ -29,20 +29,14 @@ function App() {
     setTodos(prev => prev.filter(todo => todo.id !== id))
   }
 
-  const handleUpdate = (id) => {
-  const updatedTitle = prompt('Enter new title:')
-  const updatedDescription = prompt('Enter new description:')
-
-  if (updatedTitle !== null && updatedDescription !== null) {
-    setTodos(prev =>
-      prev.map(todo =>
-        todo.id === id
-          ? { ...todo, title: updatedTitle, description: updatedDescription }
-          : todo
-      )
+const handleUpdate = (id, updatedTitle, updatedDesc) => {
+  setTodos(prev =>
+    prev.map(todo =>
+      todo.id === id ? { ...todo, title: updatedTitle, description: updatedDesc } : todo
     )
-  }
+  )
 }
+
 
 
   return (
