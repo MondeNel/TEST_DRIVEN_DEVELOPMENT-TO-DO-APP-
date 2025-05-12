@@ -29,6 +29,22 @@ function App() {
     setTodos(prev => prev.filter(todo => todo.id !== id))
   }
 
+  const handleUpdate = (id) => {
+  const updatedTitle = prompt('Enter new title:')
+  const updatedDescription = prompt('Enter new description:')
+
+  if (updatedTitle !== null && updatedDescription !== null) {
+    setTodos(prev =>
+      prev.map(todo =>
+        todo.id === id
+          ? { ...todo, title: updatedTitle, description: updatedDescription }
+          : todo
+      )
+    )
+  }
+}
+
+
   return (
     <Router>
       <div className="app">
@@ -38,7 +54,7 @@ function App() {
             path="/todos" 
             element={<div>
                         <TodoForm onAddTodo={handleAddTodo} />
-                        <TodoList todos={todos} onToggle={handleToggle} onDelete={handleDelete} />
+                        <TodoList todos={todos} onToggle={handleToggle} onDelete={handleDelete} onUpdate={handleUpdate}/>
                       </div>}
           />
         </Routes>

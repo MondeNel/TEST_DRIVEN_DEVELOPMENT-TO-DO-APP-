@@ -11,7 +11,7 @@ import TodoItem from './TodoItem'
  * @param {Function} props.onDelete - Function to handle the deletion of a todo item.
  * @returns {JSX.Element}
  */
-const TodoList = ({ todos, onToggle, onDelete }) => {
+const TodoList = ({ todos, onToggle, onDelete,  onUpdate }) => {
   return (
     <div className="todo-list">
       {todos.length === 0 ? (
@@ -26,6 +26,7 @@ const TodoList = ({ todos, onToggle, onDelete }) => {
             completed={todo.completed}
             onToggle={onToggle}
             onDelete={onDelete}
+            onUpdate={onUpdate}
           />
         ))
       )}
