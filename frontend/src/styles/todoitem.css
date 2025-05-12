@@ -18,6 +18,19 @@
   font-size: 1.2rem;
 }
 
+.todo-text {
+  color: #333;
+}
+
+.todo-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.todo-description {
+  color: #666;
+}
+
 .todo-text p {
   margin: 5px 0 0;
   color: #555;
