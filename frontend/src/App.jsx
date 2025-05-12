@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import TodoForm from './components/TodoForm'
-import TodoItem from './components/TodoItem'
-
+import TodoList from './components/TodoList'
 
 /**
  * Main application component for managing todos.
@@ -12,7 +11,9 @@ function App() {
   const [todos, setTodos] = useState([])
 
   const handleAddTodo = (todo) => {
-    setTodos(prev => [...prev, todo])
+    // Add a unique ID when a new todo is added
+    const newTodo = { ...todo, id: Date.now().toString() }
+    setTodos(prev => [...prev, newTodo])
   }
 
   const handleToggle = (id) => {
@@ -31,17 +32,7 @@ function App() {
     <div className="app">
       <h1>Todo App</h1>
       <TodoForm onAddTodo={handleAddTodo} />
-      {todos.map(todo => (
-        <TodoItem
-          key={todo.id}
-          id={todo.id}
-          title={todo.title}
-          description={todo.description}
-          completed={todo.completed}
-          onToggle={handleToggle}
-          onDelete={handleDelete}
-        />
-      ))}
+      <TodoList todos={todos} onToggle={handleToggle} onDelete={handleDelete} />
     </div>
   )
 }
