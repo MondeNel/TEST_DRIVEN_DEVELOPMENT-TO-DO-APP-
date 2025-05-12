@@ -2,22 +2,22 @@ import React from 'react'
 import TodoItem from './TodoItem'
 
 /**
- * Renders a list of todo items.
+ * Component to display a list of todo items.
  *
  * @component
- * @param {Object} props
- * @param {Array} props.todos - Array of todo objects.
- * @param {Function} props.onToggle - Function to toggle completion.
- * @param {Function} props.onDelete - Function to delete a todo.
+ * @param {Object} props - Props passed to the component.
+ * @param {Array} props.todos - List of todos to display.
+ * @param {Function} props.onToggle - Function to handle the toggle of the completion status.
+ * @param {Function} props.onDelete - Function to handle the deletion of a todo item.
  * @returns {JSX.Element}
  */
 const TodoList = ({ todos, onToggle, onDelete }) => {
   return (
     <div className="todo-list">
       {todos.length === 0 ? (
-        <p>No todos added yet.</p>
+        <p>No todos available.</p>
       ) : (
-        todos.map((todo) => (
+        todos.map(todo => (
           <TodoItem
             key={todo.id}
             id={todo.id}

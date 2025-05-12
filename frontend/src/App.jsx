@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import TodoForm from './components/TodoForm'
 import TodoList from './components/TodoList'
+import Home from './pages/Home'
 
 /**
- * Main application component for managing todos.
+ * Main application component for managing todos and routing.
  *
  * @component
  */
@@ -11,7 +13,6 @@ function App() {
   const [todos, setTodos] = useState([])
 
   const handleAddTodo = (todo) => {
-    // Add a unique ID when a new todo is added
     const newTodo = { ...todo, id: Date.now().toString() }
     setTodos(prev => [...prev, newTodo])
   }
@@ -29,11 +30,20 @@ function App() {
   }
 
   return (
-    <div className="app">
-      <h1>Todo App</h1>
-      <TodoForm onAddTodo={handleAddTodo} />
-      <TodoList todos={todos} onToggle={handleToggle} onDelete={handleDelete} />
-    </div>
+    <Router>
+      <div className="app">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route 
+            path="/todos" 
+            element={<div>
+                        <TodoForm onAddTodo={handleAddTodo} />
+                        <TodoList todos={todos} onToggle={handleToggle} onDelete={handleDelete} />
+                      </div>}
+          />
+        </Routes>
+      </div>
+    </Router>
   )
 }
 

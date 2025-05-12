@@ -85,7 +85,7 @@ async def update_todo(id: str, data: dict):
         return False
 
 
-# Delete
+# Delete function
 async def delete_todo(id: str):
     """
     Delete a todo item by its ID.
