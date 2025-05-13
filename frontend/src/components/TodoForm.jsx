@@ -12,10 +12,21 @@ import todoService from '../services/todoService';
 const TodoForm = ({ onAddTodo }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [loading, setLoading] = useState(false); // Loading state
+  const [error, setError] = useState(''); // Error state
 
   // Submit handler for the form
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Early return if form is invalid
+    if (!title.trim()) {
+      setError('Title is required');
+      return;
+    }
+
+    setLoading(true); // Start loading
+    setError(''); // Reset previous error
 
     // Create a new todo object
     const newTodo = {
@@ -24,14 +35,23 @@ const TodoForm = ({ onAddTodo }) => {
       completed: false,
     };
 
-    // Call the API to create the todo on the backend
-    const createdTodo = await todoService.createTodo(newTodo);
+    try {
+      // Call the API to create the todo on the backend
+      const createdTodo = await todoService.createTodo(newTodo);
 
-    // If the todo is successfully created, update the parent component
-    if (createdTodo) {
-      onAddTodo(createdTodo);
-      setTitle(''); // Clear the title input
-      setDescription(''); // Clear the description input
+      // If the todo is successfully created, update the parent component
+      if (createdTodo) {
+        onAddTodo(createdTodo);
+        setTitle(''); // Clear the title input
+        setDescription(''); // Clear the description input
+      } else {
+        setError('Failed to create todo. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error creating todo:', error);
+      setError('Error creating todo. Please try again.');
+    } finally {
+      setLoading(false); // End loading
     }
   };
 
@@ -39,6 +59,8 @@ const TodoForm = ({ onAddTodo }) => {
     <div className="todo-form-container">
       <h2>Create a Todo</h2>
       <form onSubmit={handleSubmit} className="todo-form">
+        {error && <p className="error-message">{error}</p>} {/* Display error message */}
+        
         <div className="form-group">
           <label htmlFor="title">Title</label>
           <input
@@ -50,6 +72,7 @@ const TodoForm = ({ onAddTodo }) => {
             required
           />
         </div>
+
         <div className="form-group">
           <label htmlFor="description">Description</label>
           <textarea
@@ -59,7 +82,10 @@ const TodoForm = ({ onAddTodo }) => {
             placeholder="Enter description"
           />
         </div>
-        <button type="submit">Add Todo</button>
+
+        <button type="submit" disabled={loading}>
+          {loading ? 'Adding Todo...' : 'Add Todo'}
+        </button>
       </form>
     </div>
   );
