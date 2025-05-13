@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
-import '../styles/todoform.css'
+import React, { useState } from 'react';
+import '../styles/todoform.css';
+import todoService from '../services/todoService';
 
 /**
  * Form component for creating a new todo item.
@@ -9,21 +10,30 @@ import '../styles/todoform.css'
  * @returns {JSX.Element}
  */
 const TodoForm = ({ onAddTodo }) => {
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  // Submit handler for the form
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Create a new todo object
     const newTodo = {
-      id: crypto.randomUUID(), // Unique ID for new todo
       title,
       description,
       completed: false,
+    };
+
+    // Call the API to create the todo on the backend
+    const createdTodo = await todoService.createTodo(newTodo);
+
+    // If the todo is successfully created, update the parent component
+    if (createdTodo) {
+      onAddTodo(createdTodo);
+      setTitle(''); // Clear the title input
+      setDescription(''); // Clear the description input
     }
-    onAddTodo(newTodo)
-    setTitle('')
-    setDescription('')
-  }
+  };
 
   return (
     <div className="todo-form-container">
@@ -52,7 +62,7 @@ const TodoForm = ({ onAddTodo }) => {
         <button type="submit">Add Todo</button>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default TodoForm
+export default TodoForm;
