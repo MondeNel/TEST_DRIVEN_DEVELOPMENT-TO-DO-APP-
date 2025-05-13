@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base URL of your FastAPI backend
-const API_URL = 'http://127.0.0.1:8000'; 
+const API_URL = 'http://127.0.0.1:8000'; // FastAPI running on PORT
 
 const todoService = {
   // Get all todos
