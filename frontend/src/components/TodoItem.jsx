@@ -1,17 +1,34 @@
-import React, { useState } from 'react'
-import UpdateModal from './UpdateModal'
-import '../styles/todoitem.css'
+import React, { useState } from 'react';
+import UpdateModal from './UpdateModal';
+import '../styles/todoitem.css';
+import todoService from '../../services/todoService.js';
 
 const TodoItem = ({ id, title, description, completed, onToggle, onDelete, onUpdate }) => {
-  const [isEditing, setIsEditing] = useState(false)
+  const [isEditing, setIsEditing] = useState(false);
 
   // Handle closing the modal on outside click or escape key
-  const handleCloseModal = () => setIsEditing(false)
+  const handleCloseModal = () => setIsEditing(false);
 
-  const handleSave = (updatedTitle, updatedDesc) => {
-    onUpdate(id, updatedTitle, updatedDesc)
-    handleCloseModal()
-  }
+  const handleSave = async (updatedTitle, updatedDesc) => {
+    const updatedData = {
+      title: updatedTitle,
+      description: updatedDesc,
+      completed,
+    };
+
+    const updatedTodo = await todoService.updateTodo(id, updatedData);
+    if (updatedTodo) {
+      onUpdate(updatedTodo);
+      handleCloseModal();
+    }
+  };
+
+  const handleDelete = async () => {
+    const deletedTodo = await todoService.deleteTodo(id);
+    if (deletedTodo) {
+      onDelete(id); // Remove the deleted todo from the parent component state
+    }
+  };
 
   return (
     <div className={`todo-item ${completed ? 'completed' : ''}`}>
@@ -28,8 +45,8 @@ const TodoItem = ({ id, title, description, completed, onToggle, onDelete, onUpd
           />
           Completed
         </label>
-        <button onClick={() => onDelete(id)}>Delete</button>
-        <button onClick={() => setIsEditing(true)}>Update</button>
+        <button className="delete-button" onClick={handleDelete}>Delete</button>
+        <button className="update-button" onClick={() => setIsEditing(true)}>Update</button>
       </div>
 
       {isEditing && (
@@ -41,7 +58,7 @@ const TodoItem = ({ id, title, description, completed, onToggle, onDelete, onUpd
         />
       )}
     </div>
-  )
-}
+  );
+};
 
-export default TodoItem
+export default TodoItem;

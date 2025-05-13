@@ -45,12 +45,33 @@
 .todo-actions button {
   padding: 5px 10px;
   border: none;
-  background-color: #e63946;
-  color: white;
   border-radius: 5px;
   cursor: pointer;
 }
 
 .todo-actions button:hover {
-  background-color: #c00024;
+  opacity: 0.8;
+}
+
+.todo-actions .delete-button {
+  background-color: #007bff; /* Blue background for delete button */
+  color: white;
+}
+
+.todo-actions .delete-button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+.todo-actions .update-button {
+  background-color: #28a745; /* Green background for update button */
+  color: white;
+}
+
+.todo-actions .update-button:hover {
+  background-color: #218838; /* Darker green on hover */
+}
+
+.todo-item.completed {
+  background-color: #d3ffd3; /* Light green background for completed tasks */
+  text-decoration: line-through; /* Strike-through text */
 }

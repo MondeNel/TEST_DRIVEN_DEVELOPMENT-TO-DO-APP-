@@ -1,60 +1,62 @@
-import React, { useState } from 'react'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
-import TodoForm from './components/TodoForm'
-import TodoList from './components/TodoList'
-import Home from './pages/Home'
+import React, { useState, useEffect } from 'react';
+import todoService from '../services/todoService.js';
+import TodoItem from './components/TodoItem';
+import TodoForm from './components/TodoForm';
 
-/**
- * Main application component for managing todos and routing.
- *
- * @component
- */
-function App() {
-  const [todos, setTodos] = useState([])
+const App = () => {
+  const [todos, setTodos] = useState([]);
 
-  const handleAddTodo = (todo) => {
-    const newTodo = { ...todo, id: Date.now().toString() }
-    setTodos(prev => [...prev, newTodo])
-  }
+  // Fetch todos on component mount
+  useEffect(() => {
+    const fetchTodos = async () => {
+      const todos = await todoService.getTodos();
+      setTodos(todos);
+    };
 
-  const handleToggle = (id) => {
-    setTodos(prev =>
-      prev.map(todo =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    )
-  }
+    fetchTodos();
+  }, []);
 
-  const handleDelete = (id) => {
-    setTodos(prev => prev.filter(todo => todo.id !== id))
-  }
+  // Add a new todo
+  const handleAddTodo = (newTodo) => {
+    setTodos([...todos, newTodo]);
+  };
 
-const handleUpdate = (id, updatedTitle, updatedDesc) => {
-  setTodos(prev =>
-    prev.map(todo =>
-      todo.id === id ? { ...todo, title: updatedTitle, description: updatedDesc } : todo
-    )
-  )
-}
+  // Toggle todo completion status
+  const handleToggleTodo = (id) => {
+    const updatedTodos = todos.map((todo) =>
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    );
+    setTodos(updatedTodos);
+  };
 
+  // Handle todo update
+  const handleUpdateTodo = (updatedTodo) => {
+    const updatedTodos = todos.map((todo) =>
+      todo.id === updatedTodo.id ? updatedTodo : todo
+    );
+    setTodos(updatedTodos);
+  };
 
+  // Handle todo deletion
+  const handleDeleteTodo = (id) => {
+    const updatedTodos = todos.filter((todo) => todo.id !== id);
+    setTodos(updatedTodos);
+  };
 
   return (
-    <Router>
-      <div className="app">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route 
-            path="/todos" 
-            element={<div>
-                        <TodoForm onAddTodo={handleAddTodo} />
-                        <TodoList todos={todos} onToggle={handleToggle} onDelete={handleDelete} onUpdate={handleUpdate}/>
-                      </div>}
-          />
-        </Routes>
-      </div>
-    </Router>
-  )
-}
+    <div>
+      <TodoForm onAddTodo={handleAddTodo} />
+      {todos.map((todo) => (
+        <TodoItem
+          key={todo.id}
+          {...todo}
+          onToggle={handleToggleTodo}
+          onDelete={handleDeleteTodo}
+          onUpdate={handleUpdateTodo}
+        />
+      ))}
+    </div>
+  );
+};
 
-export default App
+export default App;
