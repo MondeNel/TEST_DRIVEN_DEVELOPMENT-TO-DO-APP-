@@ -5,6 +5,14 @@ import '../styles/todoitem.css'
 const TodoItem = ({ id, title, description, completed, onToggle, onDelete, onUpdate }) => {
   const [isEditing, setIsEditing] = useState(false)
 
+  // Handle closing the modal on outside click or escape key
+  const handleCloseModal = () => setIsEditing(false)
+
+  const handleSave = (updatedTitle, updatedDesc) => {
+    onUpdate(id, updatedTitle, updatedDesc)
+    handleCloseModal()
+  }
+
   return (
     <div className={`todo-item ${completed ? 'completed' : ''}`}>
       <div className="todo-text">
@@ -28,10 +36,8 @@ const TodoItem = ({ id, title, description, completed, onToggle, onDelete, onUpd
         <UpdateModal
           title={title}
           description={description}
-          onClose={() => setIsEditing(false)}
-          onSave={(updatedTitle, updatedDesc) =>
-            onUpdate(id, updatedTitle, updatedDesc)
-          }
+          onClose={handleCloseModal}
+          onSave={handleSave}
         />
       )}
     </div>
