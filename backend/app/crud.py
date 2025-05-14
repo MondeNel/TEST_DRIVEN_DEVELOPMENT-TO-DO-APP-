@@ -1,6 +1,7 @@
+from fastapi import HTTPException
 from .database import todo_collection
 from .models import todo_helper
-from bson import ObjectId
+from bson import ObjectId, errors
 from bson.errors import InvalidId
 
 # Create
@@ -94,10 +95,17 @@ async def delete_todo(id: str):
         bool: True if deleted, False otherwise.
     """
     try:
+        # Check if the id is a valid ObjectId
+        if not ObjectId.is_valid(id):
+            raise HTTPException(status_code=400, detail="Invalid ID format")
+
+        # Proceed to check and delete the todo
         todo = await todo_collection.find_one({"_id": ObjectId(id)})
         if todo:
             await todo_collection.delete_one({"_id": ObjectId(id)})
             return True
-    except InvalidId:
-        return False
+    except errors.InvalidId:
+        raise HTTPException(status_code=400, detail="Invalid ID format")
+    except Exception as e:
+        print(f"Error deleting todo: {e}")
     return False

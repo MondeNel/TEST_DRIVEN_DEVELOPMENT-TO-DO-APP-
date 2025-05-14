@@ -23,14 +23,14 @@ async def read_todo(todo_id: str):
         return todo
     raise HTTPException(status_code=404, detail="Todo not found")
 
-@router.put("/todos/{todo_id}", response_model=TodoInDB)
-async def update_todo(todo_id: str, todo: TodoCreate):
-    success = await crud.update_todo(todo_id, todo.dict())
+@router.put("/todos/{todo_id}")
+async def update_todo(todo_id: str, data: dict):
+    success = await crud.update_todo(todo_id, data)
     if success:
-        updated = await todo_collection.find_one({"_id": ObjectId(todo_id)})
-        if updated:
-            return todo_helper(updated)
+        updated = await crud.get_todo(todo_id)
+        return updated
     raise HTTPException(status_code=404, detail="Todo not found")
+
 
 
 @router.delete("/todos/{todo_id}")
