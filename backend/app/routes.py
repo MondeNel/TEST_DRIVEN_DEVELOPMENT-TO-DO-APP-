@@ -1,6 +1,10 @@
 from fastapi import APIRouter, HTTPException
 from .schemas import TodoCreate, TodoInDB
 from . import crud
+from .models import todo_helper
+from .database import todo_collection
+from bson import ObjectId
+
 
 router = APIRouter()
 
@@ -19,12 +23,15 @@ async def read_todo(todo_id: str):
         return todo
     raise HTTPException(status_code=404, detail="Todo not found")
 
-@router.put("/todos/{todo_id}")
+@router.put("/todos/{todo_id}", response_model=TodoInDB)
 async def update_todo(todo_id: str, todo: TodoCreate):
     success = await crud.update_todo(todo_id, todo.dict())
     if success:
-        return {"msg": "Todo updated"}
+        updated = await todo_collection.find_one({"_id": ObjectId(todo_id)})
+        if updated:
+            return todo_helper(updated)
     raise HTTPException(status_code=404, detail="Todo not found")
+
 
 @router.delete("/todos/{todo_id}")
 async def delete_todo(todo_id: str):
