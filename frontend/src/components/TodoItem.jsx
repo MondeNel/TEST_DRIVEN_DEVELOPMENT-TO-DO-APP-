@@ -9,6 +9,11 @@ const TodoItem = ({ id, title, description, completed, onToggle, onDelete, onUpd
   // Handle closing the modal on outside click or escape key
   const handleCloseModal = () => setIsEditing(false);
 
+   const handleToggle = () => {
+    // Toggle completed status
+    onUpdate(id, title, description, !completed)
+  }
+
   const handleSave = async (updatedTitle, updatedDesc) => {
     const updatedData = {
       title: updatedTitle,
@@ -41,7 +46,7 @@ const TodoItem = ({ id, title, description, completed, onToggle, onDelete, onUpd
           <input
             type="checkbox"
             checked={completed}
-            onChange={() => onToggle(id)}
+            onChange={handleToggle}
           />
           Completed
         </label>

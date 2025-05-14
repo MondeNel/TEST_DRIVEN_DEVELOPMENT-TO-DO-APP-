@@ -75,3 +75,29 @@
   background-color: #d3ffd3; /* Light green background for completed tasks */
   text-decoration: line-through; /* Strike-through text */
 }
+
+.todo-actions .delete-button {
+  background-color: #007bff; /* Blue */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.todo-actions .delete-button:hover {
+  background-color: #0056b3;
+}
+
+.todo-actions .update-button {
+  background-color: #28a745; /* Green */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.todo-actions .update-button:hover {
+  background-color: #1e7e34;
+}
