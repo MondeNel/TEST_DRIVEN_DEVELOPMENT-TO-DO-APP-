@@ -52,7 +52,7 @@ async def get_todo(id: str):
         return None
 
 
-async def update_todo(id: str, data: dict):
+async def update_todo(id: str, data: dict) -> bool:
     """
     Update a todo item by its ID.
 
@@ -67,22 +67,19 @@ async def update_todo(id: str, data: dict):
         if len(data) < 1:
             return False
 
-        # Check if todo exists
-        todo = await todo_collection.find_one({"_id": ObjectId(id)})
-        if not todo:
-            return False
-
         result = await todo_collection.update_one(
             {"_id": ObjectId(id)},
             {"$set": data}
         )
-        return result.modified_count > 0
+
+        return result.modified_count > 0 or result.matched_count > 0
 
     except InvalidId:
         return False
     except Exception as e:
         print(f"Update error: {e}")
         return False
+
 
 
 # Delete function
